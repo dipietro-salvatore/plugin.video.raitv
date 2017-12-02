@@ -2,8 +2,9 @@
 import json
 import urllib
 import urllib2
+from phate89lib import rutils
 
-class Search:
+class Search(rutils.RUtils):
     baseUrl = "http://www.rai.it"
 
     newsArchives = {"TG1": "NomeProgramma:TG1^Tematica:Edizioni integrali",
@@ -28,7 +29,7 @@ class Search:
         
         url = self.baseUrl +  "/StatisticheProxy/proxyPost.jsp?action=getLastContentByTag&numContents=%s&tags=%s&domain=%s&xsl=%s" % \
               (str(numContents), tags, domain, xsl)
-        response = json.load(urllib2.urlopen(url))
+        response = self.getJson(url)
         return response["list"]
     
     def getMostVisited(self, tags, days=7, numContents=16):
@@ -38,5 +39,5 @@ class Search:
         
         url = self.baseUrl +  "/StatisticheProxy/proxyPost.jsp?action=mostVisited&days=%s&state=1&records=%s&tags=%s&domain=%s&xsl=%s" % \
             (str(days), str(numContents), tags, domain, xsl)
-        response = json.load(urllib2.urlopen(url))
+        response = self.getJson(url)
         return response["list"]

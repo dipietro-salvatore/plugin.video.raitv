@@ -5,8 +5,9 @@ import re
 import os
 from tempfile import mkstemp
 from HTMLParser import HTMLParser
+from phate89lib import rutils
 
-class RaiPlay:
+class RaiPlay(rutils.RUtils):
     # From http://www.raiplay.it/mobile/prod/config/RaiPlay_Config.json
     baseUrl = "http://www.rai.it/"
     channelsUrl = "http://www.rai.it/dl/RaiPlay/2016/PublishingBlock-9a2ff311-fcf0-4539-8f8f-c4fee2a71d58.html?json"
@@ -17,14 +18,13 @@ class RaiPlay:
     noThumbUrl = "http://www.rai.it/cropgd/256x144/dl/components/img/imgPlaceholder.png"
     
     def getCountry(self):
-        try:
-            response = urllib2.urlopen(self.localizeUrl).read()
-        except urllib2.HTTPError:
-            response = "ERROR"
-        return response
+        response = self.getJson(self.localizeUrl)
+        if response and response["state"]=="OK":
+            return response
+        return "ERROR"
         
     def getChannels(self):
-        response = json.load(urllib2.urlopen(self.channelsUrl))
+        response = self.getJson(self.channelsUrl)
         return response["dirette"]
         
     def getProgrammes(self, channelName, epgDate):
@@ -32,40 +32,40 @@ class RaiPlay:
         url = self.palinsestoUrl
         url = url.replace("[nomeCanale]", channelTag)
         url = url.replace("[dd-mm-yyyy]", epgDate)
-        response = json.load(urllib2.urlopen(url))
+        response = self.getJson(url)
         return response[channelName][0]["palinsesto"][0]["programmi"]
         
     def getMainMenu(self):
-        response = json.load(urllib2.urlopen(self.menuUrl))
+        response = self.getJson(self.menuUrl)
         return response["menu"]
 
     # RaiPlay Genere Page
     # RaiPlay Tipologia Page
     def getCategory(self, pathId):
         url = self.getUrl(pathId)
-        response = json.load(urllib2.urlopen(url))
+        response = self.getJson(url)
         return response["blocchi"]
   
     # Raiplay Tipologia Item
     def getProgrammeList(self, pathId):
         url = self.getUrl(pathId)
-        response = json.load(urllib2.urlopen(url))
+        response = self.getJson(url)
         return response
     
     #  PLR programma Page
     def getProgramme(self, pathId):
         url = self.getUrl(pathId)
-        response = json.load(urllib2.urlopen(url))
+        response = self.getJson(url)
         return response
         
     def getContentSet(self, url):
         url = self.getUrl(url)
-        response = json.load(urllib2.urlopen(url))
+        response = self.getJson(url)
         return response["items"]
     
     def getVideoMetadata(self, pathId):
         url = self.getUrl(pathId)
-        response = json.load(urllib2.urlopen(url))
+        response = self.getJson(url)
         return response["video"]
     
     def getUrl(self, pathId):
